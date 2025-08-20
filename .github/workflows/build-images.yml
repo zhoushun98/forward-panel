@@ -1,0 +1,86 @@
+name: build images
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'springboot-backend/**'
+      - 'vite-frontend/**'
+
+jobs:
+  build-java:
+    name: Build & Push Spring Boot Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK and Maven
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
+
+      - name: Build Java JAR
+        working-directory: ./springboot-backend
+        run: mvn clean package -DskipTests
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push images
+        uses: docker/build-push-action@v6
+        with:
+          context: ./springboot-backend/
+          file: ./springboot-backend/Dockerfile
+          push: true
+          tags: ghcr.io/zhoushun98/springboot-backend:latest
+
+  build-vite:
+    name: Build & Push Vite Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Node dependencies
+        uses: actions/cache@v4
+        with:
+          path: ./vite-frontend/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Build Vite
+        working-directory: ./vite-frontend
+        run: npm install --force && npm run build
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push images
+        uses: docker/build-push-action@v6
+        with:
+          context: ./vite-frontend/
+          file: ./vite-frontend/Dockerfile
+          push: true
+          tags: ghcr.io/zhoushun98/vite-frontend:latest
