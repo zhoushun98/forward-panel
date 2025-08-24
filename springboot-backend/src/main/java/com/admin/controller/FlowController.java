@@ -3,7 +3,6 @@ package com.admin.controller;
 import com.admin.common.aop.LogAnnotation;
 import com.admin.common.dto.FlowDto;
 import com.admin.common.dto.GostConfigDto;
-import com.admin.common.lang.R;
 import com.admin.common.task.CheckGostConfigAsync;
 import com.admin.common.utils.AESCrypto;
 import com.admin.common.utils.GostUtil;
@@ -12,8 +11,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -21,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 流量上报控制器
@@ -243,7 +241,7 @@ public class FlowController extends BaseController {
         String name = buildServiceName(forwardId, userId, userTunnelId);
         if (!Objects.equals(userTunnelId, DEFAULT_USER_TUNNEL_ID)) { // 非管理员的转发需要检测流量限制
             checkUserRelatedLimits(userId, name);
-            checkUserTunnelRelatedLimits(userTunnelId, name);
+            checkUserTunnelRelatedLimits(userTunnelId, name, userId);
         }
 
         return SUCCESS_RESPONSE;
@@ -280,39 +278,38 @@ public class FlowController extends BaseController {
         pauseService(forwardList, name);
     }
 
-    public void checkUserTunnelRelatedLimits(String userTunnelId, String name) {
+    public void checkUserTunnelRelatedLimits(String userTunnelId, String name, String userId) {
 
         UserTunnel userTunnel = userTunnelService.getById(userTunnelId);
         if (userTunnel == null) return;
         long flow = userTunnel.getInFlow() + userTunnel.getOutFlow();
-        if (flow >= userTunnel.getFlow() *  BYTES_TO_GB) {
-            pauseSpecificForward(userTunnel.getTunnelId(), name);
+        if (flow >= userTunnel.getFlow() * BYTES_TO_GB) {
+            pauseSpecificForward(userTunnel.getTunnelId(), name, userId);
             return;
         }
 
         if (userTunnel.getExpTime() != null && userTunnel.getExpTime() <= System.currentTimeMillis()) {
-            pauseSpecificForward(userTunnel.getTunnelId(), name);
+            pauseSpecificForward(userTunnel.getTunnelId(), name, userId);
             return;
         }
 
         if (userTunnel.getStatus() != 1) {
-            pauseSpecificForward(userTunnel.getTunnelId(), name);
+            pauseSpecificForward(userTunnel.getTunnelId(), name, userId);
         }
-
 
     }
 
-    private void pauseSpecificForward(Integer tunnelId, String name) {
-        List<Forward> forwardList = forwardService.list(new QueryWrapper<Forward>().eq("tunnel_id", tunnelId));
+    private void pauseSpecificForward(Integer tunnelId, String name, String userId) {
+        List<Forward> forwardList = forwardService.list(new QueryWrapper<Forward>().eq("tunnel_id", tunnelId).eq("user_id", userId));
         pauseService(forwardList, name);
     }
 
     public void pauseService(List<Forward> forwardList, String name) {
         for (Forward forward : forwardList) {
             Tunnel tunnel = tunnelService.getById(forward.getTunnelId());
-            if (tunnel != null){
+            if (tunnel != null) {
                 GostUtil.PauseService(tunnel.getInNodeId(), name);
-                if (tunnel.getType() == 2){
+                if (tunnel.getType() == 2) {
                     GostUtil.PauseRemoteService(tunnel.getOutNodeId(), name);
                 }
             }

@@ -285,8 +285,6 @@ public class ForwardServiceImpl extends ServiceImpl<ForwardMapper, Forward> impl
         // 7. 删除转发记录
         boolean result = this.removeById(id);
         if (result) {
-            // 归还用户转发条数（普通用户才需要归还）
-            returnUserForwardQuota(currentUser);
             return R.ok("端口转发删除成功");
         } else {
             return R.err("端口转发删除失败");
@@ -317,8 +315,6 @@ public class ForwardServiceImpl extends ServiceImpl<ForwardMapper, Forward> impl
         // 3. 直接删除转发记录，跳过GOST服务删除
         boolean result = this.removeById(id);
         if (result) {
-            // 归还用户转发条数（普通用户才需要归还）
-            returnUserForwardQuota(currentUser);
             return R.ok("端口转发强制删除成功");
         } else {
             return R.err("端口转发强制删除失败");
@@ -1243,20 +1239,6 @@ public class ForwardServiceImpl extends ServiceImpl<ForwardMapper, Forward> impl
      */
     private boolean isTunnelChanged(Forward existForward, ForwardUpdateDto updateDto) {
         return !existForward.getTunnelId().equals(updateDto.getTunnelId());
-    }
-
-    /**
-     * 归还用户转发配额
-     */
-    private void returnUserForwardQuota(UserInfo currentUser) {
-        if (currentUser.getRoleId() != ADMIN_ROLE_ID) {
-            User user = userService.getById(currentUser.getUserId());
-            if (user != null) {
-                user.setNum(user.getNum() + 1);
-                user.setUpdatedTime(System.currentTimeMillis());
-                userService.updateById(user);
-            }
-        }
     }
 
     /**

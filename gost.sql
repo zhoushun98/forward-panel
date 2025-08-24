@@ -101,8 +101,8 @@ CREATE TABLE `tunnel` (
   `protocol` varchar(10) NOT NULL DEFAULT 'tls',
   `interface_name` varchar(200) DEFAULT NULL,
   `flow` int(10) NOT NULL,
-  `tcp_listen_addr` varchar(100) NOT NULL DEFAULT '0.0.0.0',
-  `udp_listen_addr` varchar(100) NOT NULL DEFAULT '0.0.0.0',
+  `tcp_listen_addr` varchar(100) NOT NULL DEFAULT '[::]',
+  `udp_listen_addr` varchar(100) NOT NULL DEFAULT '[::]',
   `created_time` bigint(20) NOT NULL,
   `updated_time` bigint(20) NOT NULL,
   `status` int(10) NOT NULL
@@ -175,7 +175,7 @@ CREATE TABLE `vite_config` (
 --
 
 INSERT INTO `vite_config` (`id`, `name`, `value`, `time`) VALUES
-(1, 'app_name', '哆啦A梦', 1753346853111);
+(1, 'app_name', 'ドラえもん', 1753346853111);
 
 --
 -- 转储表的索引
