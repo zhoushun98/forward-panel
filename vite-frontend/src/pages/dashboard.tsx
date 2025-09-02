@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
   const [userTunnels, setUserTunnels] = useState<UserTunnel[]>([]);
   const [forwardList, setForwardList] = useState<Forward[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [addressModalTitle, setAddressModalTitle] = useState('');
@@ -154,6 +155,10 @@ export default function DashboardPage() {
     setUserInfo({} as UserInfo);
     setUserTunnels([]);
     setForwardList([]);
+
+    // 检查用户是否是管理员
+    const adminStatus = localStorage.getItem('admin');
+    setIsAdmin(adminStatus === 'true');
     
     loadPackageData();
     localStorage.setItem('e', '/dashboard');
@@ -636,7 +641,8 @@ export default function DashboardPage() {
            </Card>
          </div>
 
-                 {/* 隧道权限 */}
+          {/* 隧道权限 - 管理员不显示 */}
+          {!isAdmin && (
          <Card className="mb-6 lg:mb-8 border border-gray-200 dark:border-default-200 shadow-md">
            <CardHeader className="pb-3">
              <div className="flex items-center gap-2">
@@ -713,6 +719,7 @@ export default function DashboardPage() {
             )}
           </CardBody>
         </Card>
+          )}
 
                  {/* 转发配置 */}
          <Card className="border border-gray-200 dark:border-default-200 shadow-md">

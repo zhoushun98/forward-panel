@@ -4,7 +4,7 @@ export type SiteConfig = typeof siteConfig;
 
 // 缓存相关常量
 const CACHE_PREFIX = 'vite_config_';
-const VERSION = "1.2.6";
+const VERSION = "1.2.6.1";
 
 // 缓存策略：
 // - 长期有效，不设置过期时间
@@ -14,7 +14,7 @@ const VERSION = "1.2.6";
 const getInitialConfig = () => {
   if (typeof window === 'undefined') {
     return {
-      name: "哆啦A梦",
+      name: "ドラえもん",
       version: VERSION,
     };
   }
@@ -27,7 +27,7 @@ const getInitialConfig = () => {
       };
     }
   return {
-    name: "哆啦A梦",
+    name: "ドラえもん",
     version: VERSION,
   };
 };

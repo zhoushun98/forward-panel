@@ -100,8 +100,8 @@ export default function TunnelPage() {
     inNodeId: null,
     outNodeId: null,
     protocol: 'tls',
-    tcpListenAddr: '0.0.0.0',
-    udpListenAddr: '0.0.0.0',
+    tcpListenAddr: '[::]',
+    udpListenAddr: '[::]',
     interfaceName: '',
     flow: 1,
     trafficRatio: 1.0,
@@ -195,8 +195,8 @@ export default function TunnelPage() {
       inNodeId: null,
       outNodeId: null,
       protocol: 'tls',
-      tcpListenAddr: '0.0.0.0',
-      udpListenAddr: '0.0.0.0',
+      tcpListenAddr: '[::]',
+      udpListenAddr: '[::]',
       interfaceName: '',
       flow: 1,
       trafficRatio: 1.0,
@@ -216,8 +216,8 @@ export default function TunnelPage() {
       inNodeId: tunnel.inNodeId,
       outNodeId: tunnel.outNodeId || null,
       protocol: tunnel.protocol || 'tls',
-      tcpListenAddr: tunnel.tcpListenAddr || '0.0.0.0',
-      udpListenAddr: tunnel.udpListenAddr || '0.0.0.0',
+      tcpListenAddr: tunnel.tcpListenAddr || '[::]',
+      udpListenAddr: tunnel.udpListenAddr || '[::]',
       interfaceName: tunnel.interfaceName || '',
       flow: tunnel.flow,
       trafficRatio: tunnel.trafficRatio,
@@ -792,10 +792,9 @@ export default function TunnelPage() {
                           <SelectItem key="tls">TLS</SelectItem>
                           <SelectItem key="wss">WSS</SelectItem>
                           <SelectItem key="tcp">TCP</SelectItem>
-                          <SelectItem key="mtls">mTLS</SelectItem>
-                          <SelectItem key="mwss">mWSS</SelectItem>
-                          <SelectItem key="mtcp">mTCP</SelectItem>
-                          <SelectItem key="quic">QUIC</SelectItem>
+                          <SelectItem key="mtls">MTLS</SelectItem>
+                          <SelectItem key="mwss">MWSS</SelectItem>
+                          <SelectItem key="mtcp">MTCP</SelectItem>
                         </Select>
 
                         <Select

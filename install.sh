@@ -1,6 +1,6 @@
 #!/bin/bash
 # 下载地址
-DOWNLOAD_URL="https://raw.githubusercontent.com/bqlpfy/forward-panel/refs/heads/main/go-gost/gost"
+DOWNLOAD_URL="https://github.com/zhoushun98/forward-panel/releases/download/gost-latest/gost"
 INSTALL_DIR="/etc/gost"
 
 # 显示菜单
@@ -14,6 +14,14 @@ show_menu() {
   echo "3. 卸载"
   echo "4. 退出"
   echo "==============================================="
+}
+
+check_cn() {
+  local country=`curl -s ipinfo.io/country`
+  if [ "$country" = "CN" ]; then
+    DOWNLOAD_URL="https://ghfast.top/$DOWNLOAD_URL"
+  fi
+  echo "✅ 下载地址 $DOWNLOAD_URL"
 }
 
 # 检查并安装 tcpkill
@@ -117,20 +125,9 @@ done
 install_gost() {
   echo "🚀 开始安装 GOST..."
   get_config_params
-  
-  # 询问是否有加速下载地址
-  echo ""
-  echo "📥 检查下载地址..."
-  echo "加速下载地址需提供完整的地址，浏览器打开就能直接下载的那种！！！！！"
-  read -p "是否有加速下载地址？(留空使用默认地址): " custom_url
-  if [[ -n "$custom_url" ]]; then
-    DOWNLOAD_URL="$custom_url"
-    echo "✅ 使用自定义下载地址: $DOWNLOAD_URL"
-  else
-    echo "✅ 使用默认下载地址: $DOWNLOAD_URL"
-  fi
-  
-    # 检查并安装 tcpkill
+
+  check_cn
+  # 检查并安装 tcpkill
   check_and_install_tcpkill
   mkdir -p "$INSTALL_DIR"
 
@@ -163,7 +160,10 @@ install_gost() {
   cat > "$CONFIG_FILE" <<EOF
 {
   "addr": "$SERVER_ADDR",
-  "secret": "$SECRET"
+  "secret": "$SECRET",
+  "http": 0,
+  "tls": 0,
+  "socks": 0
 }
 EOF
 
@@ -222,18 +222,8 @@ update_gost() {
     echo "❌ GOST 未安装，请先选择安装。"
     return 1
   fi
-  
-  # 询问是否有加速下载地址
-  echo ""
-  echo "📥 检查下载地址..."
-  read -p "是否有加速下载地址？(留空使用默认地址): " custom_url
-  if [[ -n "$custom_url" ]]; then
-    DOWNLOAD_URL="$custom_url"
-    echo "✅ 使用自定义下载地址: $DOWNLOAD_URL"
-  else
-    echo "✅ 使用默认下载地址: $DOWNLOAD_URL"
-  fi
-  
+
+  check_cn
   # 检查并安装 tcpkill
   check_and_install_tcpkill
   # 先下载新版本
